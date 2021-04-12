@@ -235,7 +235,7 @@
                                 <thead>
                                     <tr>
                                         <th class="product-checkbox">
-											<input type="checkbox" id="selectAll" />
+											<input type="checkbox" id="selectAll" checked="checked" />
 										</th>
                                         <th class="product-image">封面</th>
                                         <th class="t-product-name">书名</th>
@@ -245,43 +245,15 @@
 										<th class="product-remove">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody>
-                                    <tr>
-                                        <td class="product-checkbox">
-											<input type="checkbox"/>
-										</td>
-                                        <td class="product-image">
-                                            <a href="javascript:;">
-                                                <img src="img/shop/1.jpg" alt="">
-                                            </a>
-                                        </td>
-                                        <td class="t-product-name">
-                                            <h3>
-                                                <a href="javascript:;">Cold mountain</a>
-                                            </h3>
-                                        </td>
-                                        <td class="product-unit-price">
-                                            <p>￥ 100</p>
-                                        </td>
-                                        <td class="product-quantity product-cart-details">
-											<input type="number" value="1">
-										</td>
-                                        <td class="product-quantity">
-											<p>$ 100</p>
-										</td>
-										<td class="product-remove">
-										    <a href="javascript:;">
-										        <i class="flaticon-delete"></i>
-										    </a>
-										</td>
-                                    </tr>
+                                <tbody id="checklist">
+                                    <!-- 购物车tr信息 -->
                                 </tbody>
                             </table>
                         </div>	
                         <div class="shopingcart-bottom-area">
                             <a class="left-shoping-cart" href="shop.html">返回购物</a>
                             <div class="shopingcart-bottom-area pull-right">
-								<a class="right-shoping-cart" href="javascript:;">清空购物车</a>
+								<a class="right-shoping-cart" href="javascript:;" onClick="removeSelectedProduct()">移除选中商品</a>
 							</div>
                         </div>	                
 		            </div>
@@ -308,10 +280,10 @@
                     <div class="col-md-6 col-sm-6">
                         <div class="subtotal-main-area">
                             <div class="subtotal-area">
-                                <h2>小计<span>$ 200</span></h2>
+                                <h2>总数<span id="product-total"></span></h2>
                             </div>
                             <div class="subtotal-area">
-                                <h2>合计<span>$ 200</span></h2>
+                                <h2>合计<span>￥&nbsp;<span id="product-total-amount"></span></span></h2>
                             </div>
                             <a href="javascript:;">结算</a>
 							<p>支付功能尚在开发中</p>
@@ -488,13 +460,49 @@
 		<script type="text/javascript" src="../js/app.js"></script>
 		<script>
 			checkCart()
+			// 全选/取消
+			$('#selectAll').on('change', function() {
+				if ($(this).is(':checked')) {
+					$('.product-checkbox').each(function() {
+						$(this).prop('checked', true)
+					})
+				} else {
+					$('.product-checkbox').each(function() {
+						$(this).prop('checked', false)
+					})
+				}
+				quantityChange()
+			})
+			
+			/**
+			 * 数量变更事件
+			 */
+			function quantityChange() {
+				var shopping_cart_num = 0
+				var total_amount = 0
+				$('#checklist').find('.td-quantity').each(function() {
+					if ($(this).parent().parent().find('.product-checkbox').is(':checked')) {
+						var num = Number($(this).val())
+						shopping_cart_num += num
+						var sellingPrice = Number($(this).parent().parent().find('.td-sellingPrice').html())
+						var td_amount = sellingPrice * 100 * num
+						$(this).parent().parent().find('.td-amount').html(td_amount / 100)
+						total_amount += td_amount
+					}
+				})
+				$('#product-total').html(shopping_cart_num)
+				$('#product-total-amount').html(total_amount / 100)
+			}
 			
 			/**
 			 * 查看购物车
 			 */
 			function checkCart() {
 				var userToken = window.localStorage.getItem('userToken')
-				if (userToken == null) return
+				if (userToken == null) {
+					layer.msg('请先登录')
+					return
+				}
 				var html = ''
 				if (userToken != null) {
 					$.ajax({
@@ -506,29 +514,60 @@
 						dataType: 'json',
 						success: function(resp) {
 							if (resp.code != null && resp.code == 200 && resp.data != null) {
-								$('.shopping-cart-book-area').empty()
 								var shopping_cart_num = 0
 								var total_amount = 0
 								$.each(resp.data, function(i, v) {
-									shopping_cart_num++
+									shopping_cart_num += v.quantity
 									total_amount += v.amount * 100
-									html += '<div class="cart-product-image">' +
-										        '<a href="single-product.html?id=' + v.bookIdStr + '">' +
+									html += 
+										'<tr>' +
+										    '<td class="product-checkbox">' +
+												'<input type="checkbox" class="product-checkbox" checked="checked" />' +
+												'<input type="hidden" class="bookId" value="' + v.bookIdStr + '" />' +
+											'</td>' +
+										    '<td class="product-image">' +
+										        '<a href="javascript:;">' +
 										            '<img src="' + v.book.picUrl + '" alt="">' +
 										        '</a>' +
-										    '</div>' +
-										    '<div class="cart-product-info">' +
-										        '<p>' +
-										            '<span>' + v.quantity + '</span>' +
-										            'x' +
-										            '<a href="single-product.html?id=' + v.bookIdStr + '">' + v.book.name + '</a>' +
-										        '</p>' +
-										        '<span class="cart-price">￥ ' + v.amount + '</span>' +
-										    '</div>';
+										    '</td>' +
+										    '<td class="t-product-name">' +
+										        '<h3>' +
+										            '<a href="javascript:;">' + v.book.name + '</a>' +
+										        '</h3>' +
+										    '</td>' +
+										    '<td class="product-unit-price">' +
+										        '<p>￥&nbsp;<span class="td-sellingPrice">' + v.book.sellingPrice + '</span></p>' +
+										    '</td>' +
+										    '<td class="product-quantity product-cart-details">' +
+												'<input type="number" class="td-quantity" value="' + v.quantity + '">' +
+											'</td>' +
+										    '<td class="product-quantity">' +
+												'<p>￥&nbsp;<span class="td-amount">' + v.amount + '</span></p>' +
+											'</td>' +
+											'<td class="product-remove">' +
+											    '<a href="javascript:;" onClick="removeTrAndProduct(this)">' +
+											        '<i class="flaticon-delete"></i>' +
+											    '</a>' +
+											'</td>' +
+										'</tr>';
 								})
-								$('#shopping-cart-num').append('<span>' + shopping_cart_num + '</span>')
-								$('.shopping-cart-book-area').html(html)
-								$('.total-amount').html('￥&nbsp;' + (total_amount / 100))
+								$('#checklist').html(html)
+								$('#product-total').html(shopping_cart_num)
+								$('#product-total-amount').html(total_amount / 100)
+								$('#checklist').find(":checkbox").bind('click', function() {
+									if ($(this).is(':checked')) {
+										let nocheckedList = $("#checklist").find(":checkbox:not(:checked)").length;
+										if (nocheckedList === 0) {
+											$("#selectAll:first").prop('checked', true)
+										}
+									} else {
+										$('#selectAll:first').prop('checked', false)
+									}
+									quantityChange()
+								})
+								$('.td-quantity').bind('change', function() {
+									quantityChange()
+								})
 							} else {
 								layer.msg(resp.msg)
 							}
@@ -542,6 +581,28 @@
 						}
 					})
 				}
+			}
+			
+			/**
+			 * 删除购物车商品和tr，不刷新界面
+			 */
+			function removeTrAndProduct(_this) {
+				var tr = $(_this).parent().parent()
+				var bookId = $(tr).find('.bookId').val()
+				$(tr).remove()
+				removeProduct(bookId)
+			}
+			
+			/**
+			 * 移除选中商品
+			 */
+			function removeSelectedProduct() {
+				$('#checklist').find(':checkbox:checked').each(function() {
+					var tr = $(this).parent().parent()
+					var bookId = $(this).siblings('.bookId').val()
+					$(tr).remove()
+					removeProduct(bookId)
+				})
 			}
 			
 			/**
@@ -559,7 +620,7 @@
 					contentType: 'application/json',
 					success: function(resp) {
 						if (resp.code != null && resp.code == 200) {
-							checkCart()
+							quantityChange()
 						} else {
 							layer.msg(resp.msg)
 						}
