@@ -158,7 +158,7 @@
                                     </a>
                                     <div class="add-to-cart-product">
 										<!-- 购物车商品展示 -->
-                                        <div class="cart-product shopping-cart-book-area">
+                                        <div class="shopping-cart-book-area">
                                         </div>
                                         <div class="total-cart-price">
                                             <div class="cart-product-line fast-line">
@@ -820,7 +820,9 @@
 								$.each(resp.data, function(i, v) {
 									shopping_cart_num++
 									total_amount += v.amount * 100
-									html += '<div class="cart-product-image">' +
+									html += 
+										'<div class="cart-product">' +
+											'<div class="cart-product-image">' +
 										        '<a href="single-product.html?id=' + v.bookIdStr + '">' +
 										            '<img src="' + v.book.picUrl + '" alt="">' +
 										        '</a>' +
@@ -835,7 +837,8 @@
 										    '</div>' +
 										    '<div class="cart-product-remove" onClick="removeProduct(\'' + v.bookIdStr +'\')">' +
 										        '<i class="fa fa-times"></i>' +
-										    '</div>';
+										    '</div>' +
+										'</div>';
 								})
 								$('#shopping-cart-num').append('<span>' + shopping_cart_num + '</span>')
 								$('.shopping-cart-book-area').html(html)
