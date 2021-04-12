@@ -113,18 +113,18 @@
                                     <li><a href="shop.html">精选</a></li>
                                     <li><a href="cart.html">购物车</a></li>
                                     <li><a href="order.html">订单</a></li>
-                                    <li><a href="javascript:;">pages</a>
+                                    <li><a href="javascript:;">更多</a>
                                         <ul class="sub-menu">
                                             <li><a href="about.html">About Us</a></li>
                                             <li><a href="cart.html">Cart Page</a></li>
                                             <li><a href="checkout.html">Check Out</a></li>
                                             <li><a href="contact.html">Contact</a></li>
-                                            <li><a href="login.html">Login</a></li>
                                             <li><a href="my-account.html">My Account</a></li>
                                             <li><a href="shop.html">Shopping Page</a></li>
                                             <li><a href="single-product.html">Single Shop Page</a></li>
                                             <li><a href="wishlist.html">Wishlist Page</a></li>
-                                            <li><a href="404.html">404 Page</a></li>
+                                    		<li><a href="login.html" class="isLogin">登录</a></li>
+                                            <li><a href="javascript:;" class="isLogout" onClick="logout()">退出</a></li>
                                         </ul>
                                     </li>
                                 </ul>
@@ -460,6 +460,37 @@
 		<script type="text/javascript" src="../js/app.js"></script>
 		<script>
 			checkCart()
+			
+			// 显示登录退出标签
+			showIsLogout()
+			function showIsLogout() {
+				var userToken = window.localStorage.getItem('userToken')
+				if (userToken) {
+					$('.isLogout').show()
+					$('.isLogin').hide()
+				} else {
+					$('.isLogout').hide()
+					$('.isLogin').show()
+				}
+			}
+			
+			function logout() {
+				var userToken = window.localStorage.getItem('userToken')
+				$.ajax({
+					url: url.user.logout,
+					headers: {
+						token: userToken
+					},
+					type: 'GET',
+					dataType: 'json',
+					success: function(resp) {
+						console.log(resp)
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}
+				})
+			}
+			
 			// 全选/取消
 			$('#selectAll').on('change', function() {
 				if ($(this).is(':checked')) {
