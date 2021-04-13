@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Shopping Cart || Witter</title>
+        <title>Shopping Cart</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- favicon -->
@@ -285,7 +285,7 @@
                             <div class="subtotal-area">
                                 <h2>合计<span>￥&nbsp;<span id="product-total-amount"></span></span></h2>
                             </div>
-                            <a href="javascript:;">结算</a>
+                            <a href="javascript:;">去结算</a>
 							<p>支付功能尚在开发中</p>
                         </div>
                     </div>
@@ -628,11 +628,17 @@
 			 * 移除选中商品
 			 */
 			function removeSelectedProduct() {
-				$('#checklist').find(':checkbox:checked').each(function() {
-					var tr = $(this).parent().parent()
-					var bookId = $(this).siblings('.bookId').val()
-					$(tr).remove()
-					removeProduct(bookId)
+				layer.confirm('确定移除选中的商品吗？', {
+					btn: ['是', '否'],
+					yes: function(index) {
+						layer.close(index)
+						$('#checklist').find(':checkbox:checked').each(function() {
+							var tr = $(this).parent().parent()
+							var bookId = $(this).siblings('.bookId').val()
+							$(tr).remove()
+							removeProduct(bookId)
+						})
+					}
 				})
 			}
 			
