@@ -285,7 +285,7 @@
                             <div class="subtotal-area">
                                 <h2>合计<span>￥&nbsp;<span id="product-total-amount"></span></span></h2>
                             </div>
-                            <a href="checkout.html">去结算</a>
+                            <a href="javascript:;" onClick="checkout()">去结算</a>
 							<p>支付功能尚在开发中</p>
                         </div>
                     </div>
@@ -670,6 +670,28 @@
 						}
 					}
 				})
+			}
+			
+			/**
+			 * 选中商品跳转到结算界面
+			 */
+			function checkout() {
+				var userToken = window.localStorage.getItem('userToken')
+				if (userToken == null) {
+					layer.msg('请先登录')
+					return
+				}
+				var bookIds = new Array()
+				$('#checklist').find('input[type="checkbox"]:checked').each(function() {
+					var bookId = $(this).siblings('.bookId').val()
+					bookIds.push(bookId)
+				})
+				if (bookIds != '') {
+					window.localStorage.setItem('checkout:' + userToken, bookIds)
+					window.location.href = './checkout.html'
+				} else {
+					layer.msg('没有选中的商品~')
+				}
 			}
 		</script>
 </html>

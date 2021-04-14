@@ -15,6 +15,10 @@ var url = {
 	cart: {
 		add: baseUrl + "/library-shopping-cart/shoppingCart",
 		get: baseUrl + "/library-shopping-cart/shoppingCart",
+		getByBookIds: baseUrl + "/library-shopping-cart/shoppingCart/getByBookIds",
 		deleteByBookId: baseUrl + "/library-shopping-cart/shoppingCart/deleteByBookId"
+	},
+	order: {
+		add: baseUrl + "/library-order/order"
 	}
 }
