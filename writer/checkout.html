@@ -3,7 +3,7 @@
     <head>
         <meta charset="utf-8">
         <meta http-equiv="x-ua-compatible" content="ie=edge">
-        <title>Checkout || Witter Multipage Responsive Template</title>
+        <title>Checkout</title>
         <meta name="description" content="">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <!-- favicon -->
@@ -606,7 +606,12 @@
 					dataType: 'json',
 					contentType: 'application/json',
 					success: function(resp) {
-						layer.msg(resp.msg)
+						if (resp.code != null && resp.code == 200) {
+							window.localStorage.removeItem('checkout:' + userToken)
+							window.location.href = './order.html'
+						} else {
+							layer.msg(resp.msg)
+						}
 					},
 					error: function(e) {
 						if (e.responseJSON != null) {
