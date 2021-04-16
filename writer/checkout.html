@@ -607,8 +607,28 @@
 					contentType: 'application/json',
 					success: function(resp) {
 						if (resp.code != null && resp.code == 200) {
-							window.localStorage.removeItem('checkout:' + userToken)
-							window.location.href = './order.html'
+							var bookIds = window.localStorage.getItem('checkout:' + userToken)
+							// 删除购物车中的信息
+							$.ajax({
+								url: url.cart.deleteByBookIds,
+								data: {bookIds: bookIds},
+								headers: {token: userToken},
+								type: 'DELETE',
+								dataType: 'json',
+								success: function(resp) {
+									if (resp.code != null && resp.code == 200) {
+										window.localStorage.removeItem('checkout:' + userToken)
+										window.location.href = './order.html'
+									}
+								},
+								error: function(e) {
+									if (e.responseJSON != null) {
+										layer.msg(e.responseJSON.msg)
+									} else {
+										layer.msg('服务器未启动')
+									}
+								}
+							})
 						} else {
 							layer.msg(resp.msg)
 						}

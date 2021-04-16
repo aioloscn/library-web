@@ -16,7 +16,8 @@ var url = {
 		add: baseUrl + "/library-shopping-cart/shoppingCart",
 		get: baseUrl + "/library-shopping-cart/shoppingCart",
 		getByBookIds: baseUrl + "/library-shopping-cart/shoppingCart/getByBookIds",
-		deleteByBookId: baseUrl + "/library-shopping-cart/shoppingCart/deleteByBookId"
+		deleteByBookId: baseUrl + "/library-shopping-cart/shoppingCart/deleteByBookId",
+		deleteByBookIds: baseUrl + "/library-shopping-cart/shoppingCart/deleteByBookIds"
 	},
 	order: {
 		add: baseUrl + "/library-order/order"
