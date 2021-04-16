@@ -537,51 +537,49 @@
 					return
 				}
 				var bookIds = window.localStorage.getItem('checkout:' + userToken)
-				if (bookIds != null && bookIds != '') {
-					$.ajax({
-						url: url.cart.getByBookIds,
-						data: {bookIds: bookIds},
-						headers: {
-							token: userToken
-						},
-						type: 'GET',
-						dataType: 'json',
-						success: function(resp) {
-							if (resp.code != null && resp.code == 200 && resp.data != null) {
-								var orderBookInsertBOs = []
-								var html = ''
-								$.each(resp.data, function(i, v) {
-									var orderBookInsertBO = new Object()
-									orderBookInsertBO.bookId = v.bookIdStr
-									orderBookInsertBO.quantity = v.quantity
-									orderBookInsertBO.amount = v.amount
-									orderBookInsertBOs.push(orderBookInsertBO)
-									totalQuantity += v.quantity
-									totalAmount += v.amount * 100
-									html += '<tr>' +
-												'<td><h4 class="product-name" style="font-weight: normal;">' + v.book.name + '</h4></td>' +
-												'<td><span class="cart-price">￥<span class="check-price">' + v.book.sellingPrice + '</span></span></td>' +
-												'<td>' + v.quantity + '</td>' +
-												'<td><span class="cart-price">￥<span class="check-price">' + v.amount + '</span></span></td>' +
-											'</tr>';
-								})
-								$('#productlist').html(html)
-								$('#product-amount').html(totalAmount / 100)
-								$('#product-total-amount').html(totalAmount / 100)
-								orderInsertBO.orderBookInsertBOs = orderBookInsertBOs
-							} else {
-								layer.msg(resp.msg)
-							}
-						},
-						error: function(e) {
-							if (e.responseJSON != null) {
-								layer.msg(e.responseJSON.msg)
-							} else {
-								layer.msg('服务器未启动')
-							}
+				$.ajax({
+					url: url.cart.getByBookIds,
+					data: {bookIds: bookIds},
+					headers: {
+						token: userToken
+					},
+					type: 'GET',
+					dataType: 'json',
+					success: function(resp) {
+						if (resp.code != null && resp.code == 200 && resp.data != null) {
+							var orderBookInsertBOs = []
+							var html = ''
+							$.each(resp.data, function(i, v) {
+								var orderBookInsertBO = new Object()
+								orderBookInsertBO.bookId = v.bookIdStr
+								orderBookInsertBO.quantity = v.quantity
+								orderBookInsertBO.amount = v.amount
+								orderBookInsertBOs.push(orderBookInsertBO)
+								totalQuantity += v.quantity
+								totalAmount += v.amount * 100
+								html += '<tr>' +
+											'<td><h4 class="product-name" style="font-weight: normal;">' + v.book.name + '</h4></td>' +
+											'<td><span class="cart-price">￥<span class="check-price">' + v.book.sellingPrice + '</span></span></td>' +
+											'<td>' + v.quantity + '</td>' +
+											'<td><span class="cart-price">￥<span class="check-price">' + v.amount + '</span></span></td>' +
+										'</tr>';
+							})
+							$('#productlist').html(html)
+							$('#product-amount').html(totalAmount / 100)
+							$('#product-total-amount').html(totalAmount / 100)
+							orderInsertBO.orderBookInsertBOs = orderBookInsertBOs
+						} else {
+							layer.msg(resp.msg)
 						}
-					})
-				}
+					},
+					error: function(e) {
+						if (e.responseJSON != null) {
+							layer.msg(e.responseJSON.msg)
+						} else {
+							layer.msg('服务器未启动')
+						}
+					}
+				})
 			}
 			
 			/**
