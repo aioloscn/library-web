@@ -529,6 +529,7 @@
 			var orderInsertBO = new Object()
 			var totalQuantity = 0
 			var totalAmount = 0
+			var tableData = null
 			initCheckout()
 			
 			function initCheckout() {
@@ -547,6 +548,7 @@
 					dataType: 'json',
 					success: function(resp) {
 						if (resp.code != null && resp.code == 200 && resp.data != null) {
+							tableData = resp.data
 							var orderBookInsertBOs = []
 							var html = ''
 							$.each(resp.data, function(i, v) {
@@ -590,6 +592,7 @@
 					layer.msg('请先登录')
 					return
 				}
+				if (tableData == null || tableData.length == 0) return
 				
 				orderInsertBO.shippingAddress = $('#shipp-address').val()
 				orderInsertBO.totalQuantity = totalQuantity
