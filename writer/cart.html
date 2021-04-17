@@ -459,12 +459,12 @@
 		<script src="../libs/layui/layer.js"></script>
 		<script type="text/javascript" src="../js/app.js"></script>
 		<script>
+			var userToken = window.localStorage.getItem('userToken')
 			checkCart()
 			
 			// 显示登录退出标签
 			showIsLogout()
 			function showIsLogout() {
-				var userToken = window.localStorage.getItem('userToken')
 				if (userToken) {
 					$('.isLogout').show()
 					$('.isLogin').hide()
@@ -475,7 +475,6 @@
 			}
 			
 			function logout() {
-				var userToken = window.localStorage.getItem('userToken')
 				$.ajax({
 					url: url.user.logout,
 					headers: {
@@ -514,22 +513,62 @@
 				$('#checklist').find('.td-quantity').each(function() {
 					if ($(this).parent().parent().find('.product-checkbox').is(':checked')) {
 						var num = Number($(this).val())
+						if (num <= 0) {
+							$(this).val(1)
+							num = 1
+						}
 						shopping_cart_num += num
 						var sellingPrice = Number($(this).parent().parent().find('.td-sellingPrice').html())
-						var td_amount = sellingPrice * 100 * num
-						$(this).parent().parent().find('.td-amount').html(td_amount / 100)
+						var td_amount = Number(sellingPrice) * 10000 * num
+						$(this).parent().parent().find('.td-amount').html(td_amount / 10000)
 						total_amount += td_amount
 					}
 				})
 				$('#product-total').html(shopping_cart_num)
-				$('#product-total-amount').html(total_amount / 100)
+				$('#product-total-amount').html(total_amount / 10000)
+			}
+			
+			/**
+			 * 提交商品数量修改
+			 */
+			function updateCart(_this) {
+				var quantity = $(_this).val()
+				if (quantity <= 0) {
+					$(_this).val(1)
+					return
+				}
+				var bookId = $(_this).parent().parent().find('.bookId').val()
+				$.ajax({
+					url: url.cart.update,
+					data: JSON.stringify({
+						bookId: bookId,
+						quantity: quantity
+					}),
+					headers: {
+						token: userToken
+					},
+					type: 'PUT',
+					dataType: 'json',
+					contentType: 'application/json',
+					success: function(resp) {
+						if (resp.code != 200) {
+							layer.msg(resp.msg)
+						}
+					},
+					error: function(e) {
+						if (e.responseJSON != null) {
+							layer.msg(e.responseJSON.msg)
+						} else {
+							layer.msg('服务器未启动')
+						}
+					}
+				})
 			}
 			
 			/**
 			 * 查看购物车
 			 */
 			function checkCart() {
-				var userToken = window.localStorage.getItem('userToken')
 				if (userToken == null) {
 					layer.msg('请先登录')
 					return
@@ -549,7 +588,7 @@
 								var total_amount = 0
 								$.each(resp.data, function(i, v) {
 									shopping_cart_num += v.quantity
-									total_amount += v.amount * 100
+									total_amount += v.amount * 10000
 									html += 
 										'<tr>' +
 										    '<td class="product-checkbox">' +
@@ -584,7 +623,7 @@
 								})
 								$('#checklist').html(html)
 								$('#product-total').html(shopping_cart_num)
-								$('#product-total-amount').html(total_amount / 100)
+								$('#product-total-amount').html(total_amount / 10000)
 								$('#checklist').find(":checkbox").bind('click', function() {
 									if ($(this).is(':checked')) {
 										let nocheckedList = $("#checklist").find(":checkbox:not(:checked)").length;
@@ -598,6 +637,7 @@
 								})
 								$('.td-quantity').bind('change', function() {
 									quantityChange()
+									updateCart(this)
 								})
 							} else {
 								layer.msg(resp.msg)
@@ -646,7 +686,6 @@
 			 * 移除购物车商品
 			 */
 			function removeProduct(bookId) {
-				var userToken = window.localStorage.getItem('userToken')
 				$.ajax({
 					url: url.cart.deleteByBookId + "/" + bookId,
 					headers: {
@@ -676,7 +715,6 @@
 			 * 选中商品跳转到结算界面
 			 */
 			function checkout() {
-				var userToken = window.localStorage.getItem('userToken')
 				if (userToken == null) {
 					layer.msg('请先登录')
 					return

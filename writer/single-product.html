@@ -762,7 +762,7 @@
 								var total_amount = 0
 								$.each(resp.data, function(i, v) {
 									shopping_cart_num++
-									total_amount += v.amount * 100
+									total_amount += v.amount * 10000
 									html += 
 										'<div class="cart-product">' +
 											'<div class="cart-product-image">' +
@@ -785,7 +785,7 @@
 								})
 								$('#shopping-cart-num').append('<span>' + shopping_cart_num + '</span>')
 								$('.shopping-cart-book-area').html(html)
-								$('.total-amount').html('￥&nbsp;' + (total_amount / 100))
+								$('.total-amount').html('￥&nbsp;' + (total_amount / 10000))
 							} else {
 								layer.msg(resp.msg)
 							}
