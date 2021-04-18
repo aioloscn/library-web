@@ -241,6 +241,7 @@
                                         <th class="product-quantity">数量</th>
                                         <th class="product-amount">小计</th>
 										<th class="product-total-amount">总金额</th>
+										<th class="product-status">状态</th>
 										<th class="product-remove">操作</th>
                                     </tr>
                                 </thead>
@@ -500,10 +501,16 @@
 										'<td class="product-quantity">' +
 											'<p>￥&nbsp;<span class="td-amount">' + v.totalAmount + '</span></p>' +
 										'</td>' +
+										'<td class="product-status">' +
+											'<span class="td-status">' + v.orderStatus + '</span>' +
+										'</td>' +
 										'<td class="product-remove">' +
 										    '<a href="javascript:;" onClick="removeTrAndProduct(this)">' +
 										        '<i class="flaticon-delete"></i>' +
 										    '</a>' +
+											'<div class="availability">' +
+												'<span><a href="javascript:;" onClick="receipt(this)">确认收货</span>' +
+											'</div>' +
 										'</td>' +
 									'</tr>';
 								$('#orderlist').html(html)
@@ -526,7 +533,6 @@
 			 * 查看购物车
 			 */
 			function checkCart() {
-				var userToken = window.localStorage.getItem('userToken')
 				if (userToken == null) return
 				var html = ''
 				if (userToken != null) {
@@ -616,6 +622,38 @@
 					contentType: 'application/json',
 					success: function(resp) {
 						if (resp.code != null && resp.code == 200) {
+						} else {
+							layer.msg(resp.msg)
+						}
+					},
+					error: function(e) {
+						if (e.responseJSON != null) {
+							layer.msg(e.responseJSON.msg)
+						} else {
+							layer.msg('服务器未启动')
+						}
+					}
+				})
+			}
+			
+			/**
+			 * 确认收货
+			 */
+			function receipt(_this) {
+				var tr = $(_this).parents('tr')
+				var orderNo = $(tr).find('.orderNo').val()
+				$.ajax({
+					url: url.order.receipt,
+					data: JSON.stringify({
+						orderNo: orderNo,
+					}),
+					headers: {token: userToken},
+					type: 'PUT',
+					dataType: 'json',
+					contentType: 'application/json',
+					success: function(resp) {
+						if (resp.code != null && resp.code == 200) {
+							$(tr).find('.td-status').html('已收货')
 						} else {
 							layer.msg(resp.msg)
 						}

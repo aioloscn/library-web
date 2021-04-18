@@ -23,6 +23,7 @@ var url = {
 	order: {
 		add: baseUrl + "/library-order/order",
 		getByUser: baseUrl + "/library-order/order/getByUser",
-		del: baseUrl + "/library-order/order"
+		del: baseUrl + "/library-order/order",
+		receipt: baseUrl + "/library-order/order/receipt"
 	}
 }
