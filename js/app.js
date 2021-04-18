@@ -21,6 +21,8 @@ var url = {
 		update: baseUrl + "/library-shopping-cart/shoppingCart/updateBookQuantity"
 	},
 	order: {
-		add: baseUrl + "/library-order/order"
+		add: baseUrl + "/library-order/order",
+		getByUser: baseUrl + "/library-order/order/getByUser",
+		del: baseUrl + "/library-order/order"
 	}
 }

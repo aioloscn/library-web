@@ -144,7 +144,7 @@
                                     </a>
                                     <div class="add-to-cart-product">
                                         <!-- 购物车商品展示 -->
-                                    	<div class="cart-product shopping-cart-book-area">
+                                    	<div class="shopping-cart-book-area">
                                     	</div>
                                         <div class="total-cart-price">
                                             <div class="cart-product-line fast-line">
@@ -158,7 +158,7 @@
                                         </div>
                                         <div class="cart-checkout">
                                             <a href="checkout.html">
-                                                结算
+                                                去结算
                                                 <i class="fa fa-chevron-right"></i>
                                             </a>
                                         </div>
@@ -212,12 +212,12 @@
 				<div class="row">
 					<div class="col-md-12">
 					    <div class="breadcrumbs">
-					       <h2>SHOPPING CART</h2> 
+					       <h2>Order</h2> 
 					       <ul class="breadcrumbs-list">
 						        <li>
 						            <a title="Return to Home" href="index.html">Home</a>
 						        </li>
-						        <li>Shopping Cart</li>
+						        <li>Order</li>
 						    </ul>
 					    </div>
 					</div>
@@ -225,7 +225,7 @@
 			</div>
 		</div> 
 		<!-- Breadcrumbs Area Start --> 
-		<!-- Cart Area Start -->
+		<!-- Order Area Start -->
 		<div class="shopping-cart-area section-padding">
 		    <div class="container">
 		        <div class="row">
@@ -234,65 +234,29 @@
                             <table>
                                 <thead>
                                     <tr>
-                                        <th class="product-checkbox">
-											<input type="checkbox" id="selectAll" checked="checked" />
-										</th>
+										<th class="product-order-id">订单号</th>
                                         <th class="product-image">封面</th>
                                         <th class="t-product-name">书名</th>
                                         <th class="product-unit-price">单价</th>
                                         <th class="product-quantity">数量</th>
-                                        <th class="product-subtotal">小计</th>
+                                        <th class="product-amount">小计</th>
+										<th class="product-total-amount">总金额</th>
 										<th class="product-remove">操作</th>
                                     </tr>
                                 </thead>
-                                <tbody id="checklist">
-                                    <!-- 购物车tr信息 -->
+                                <tbody id="orderlist">
+                                    <!-- 订单tr信息 -->
                                 </tbody>
                             </table>
                         </div>	
                         <div class="shopingcart-bottom-area">
                             <a class="left-shoping-cart" href="shop.html">返回购物</a>
-                            <div class="shopingcart-bottom-area pull-right">
-								<a class="right-shoping-cart" href="javascript:;">移除选中商品</a>
-							</div>
                         </div>	                
 		            </div>
 		        </div>
 		    </div>
 		</div>
-		<!-- Cart Area End -->
-        <!-- Discount Area Start -->
-        <div class="discount-area">
-            <div class="container">
-                <div class="row">
-                    <div class="col-md-6 col-sm-6">
-                        <div class="discount-main-area">
-                            <div class="discount-top">
-                                <h3>优惠券</h3>
-                                <p>输入优惠券代码</p>
-                            </div>
-                            <div class="discount-middle">
-                                <input type="text" placeholder="">
-                                <a class="" href="javascript:;">使用优惠券</a>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 col-sm-6">
-                        <div class="subtotal-main-area">
-                            <div class="subtotal-area">
-                                <h2>总数<span id="product-total"></span></h2>
-                            </div>
-                            <div class="subtotal-area">
-                                <h2>合计<span>￥&nbsp;<span id="product-total-amount"></span></span></h2>
-                            </div>
-                            <a href="javascript:;">结算</a>
-							<p>支付功能尚在开发中</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <!-- Discount Area End -->	
+		<!-- Order Area End -->
 		<!-- Footer Area Start -->
 		<footer>
 		    <div class="footer-top-area">
@@ -459,12 +423,13 @@
 		<script src="../libs/layui/layer.js"></script>
 		<script type="text/javascript" src="../js/app.js"></script>
 		<script>
+			var userToken = window.localStorage.getItem('userToken')
+			initOrder()
 			checkCart()
 			
 			// 显示登录退出标签
 			showIsLogout()
 			function showIsLogout() {
-				var userToken = window.localStorage.getItem('userToken')
 				if (userToken) {
 					$('.isLogout').show()
 					$('.isLogin').hide()
@@ -475,7 +440,6 @@
 			}
 			
 			function logout() {
-				var userToken = window.localStorage.getItem('userToken')
 				$.ajax({
 					url: url.user.logout,
 					headers: {
@@ -491,38 +455,71 @@
 				})
 			}
 			
-			// 全选/取消
-			$('#selectAll').on('change', function() {
-				if ($(this).is(':checked')) {
-					$('.product-checkbox').each(function() {
-						$(this).prop('checked', true)
-					})
-				} else {
-					$('.product-checkbox').each(function() {
-						$(this).prop('checked', false)
-					})
-				}
-				quantityChange()
-			})
-			
 			/**
-			 * 数量变更事件
+			 * 显示用户订单
 			 */
-			function quantityChange() {
-				var shopping_cart_num = 0
-				var total_amount = 0
-				$('#checklist').find('.td-quantity').each(function() {
-					if ($(this).parent().parent().find('.product-checkbox').is(':checked')) {
-						var num = Number($(this).val())
-						shopping_cart_num += num
-						var sellingPrice = Number($(this).parent().parent().find('.td-sellingPrice').html())
-						var td_amount = sellingPrice * 100 * num
-						$(this).parent().parent().find('.td-amount').html(td_amount / 100)
-						total_amount += td_amount
+			function initOrder() {
+				if (userToken == null) {
+					layer.msg('请先登录')
+					return
+				}
+				$.ajax({
+					url: url.order.getByUser,
+					headers: {token: userToken},
+					type: "GET",
+					dataType: 'json',
+					success: function(resp) {
+						if (resp.code != null && resp.code == 200 && resp.data != null) {
+							var html = ''
+							$.each(resp.data, function(i, v) {
+								html +=
+									'<tr>' +
+										'<td class="product-order-id">' +
+											'<span>' + v.orderNoStr + '</span>' +
+											'<input type="hidden" class="orderNo" value="' + v.orderNoStr + '" />' +
+										'</td>' +
+									    '<td class="product-image">' +
+									        '<a href="javascript:;">' +
+									            '<img src="' + v.book.picUrl + '" alt="" style="height: 160px;">' +
+									        '</a>' +
+									    '</td>' +
+									    '<td class="t-product-name">' +
+									        '<h3>' +
+									            '<a href="javascript:;">' + v.book.name + '</a>' +
+									        '</h3>' +
+									    '</td>' +
+									    '<td class="product-unit-price">' +
+									        '<p>￥&nbsp;<span class="td-sellingPrice">' + v.book.sellingPrice + '</span></p>' +
+									    '</td>' +
+									    '<td class="product-quantity">' +
+											'<span class="td-quantity">' + v.quantity + '</span>' +
+										'</td>' +
+									    '<td class="product-amount">' +
+											'<p>￥&nbsp;<span class="td-amount">' + v.amount + '</span></p>' +
+										'</td>' +
+										'<td class="product-quantity">' +
+											'<p>￥&nbsp;<span class="td-amount">' + v.totalAmount + '</span></p>' +
+										'</td>' +
+										'<td class="product-remove">' +
+										    '<a href="javascript:;" onClick="removeTrAndProduct(this)">' +
+										        '<i class="flaticon-delete"></i>' +
+										    '</a>' +
+										'</td>' +
+									'</tr>';
+								$('#orderlist').html(html)
+							})
+						} else {
+							layer.msg(resp.msg)
+						}
+					},
+					error: function(e) {
+						if (e.responseJSON != null) {
+							layer.msg(e.responseJSON.msg)
+						} else {
+							layer.msg('服务器未启动')
+						}
 					}
 				})
-				$('#product-total').html(shopping_cart_num)
-				$('#product-total-amount').html(total_amount / 100)
 			}
 			
 			/**
@@ -530,10 +527,7 @@
 			 */
 			function checkCart() {
 				var userToken = window.localStorage.getItem('userToken')
-				if (userToken == null) {
-					layer.msg('请先登录')
-					return
-				}
+				if (userToken == null) return
 				var html = ''
 				if (userToken != null) {
 					$.ajax({
@@ -545,60 +539,35 @@
 						dataType: 'json',
 						success: function(resp) {
 							if (resp.code != null && resp.code == 200 && resp.data != null) {
+								$('.shopping-cart-book-area').empty()
 								var shopping_cart_num = 0
 								var total_amount = 0
 								$.each(resp.data, function(i, v) {
-									shopping_cart_num += v.quantity
-									total_amount += v.amount * 100
+									shopping_cart_num++
+									total_amount += v.amount * 10000
 									html += 
-										'<tr>' +
-										    '<td class="product-checkbox">' +
-												'<input type="checkbox" class="product-checkbox" checked="checked" />' +
-												'<input type="hidden" value="' + v.idStr + '" />' +
-											'</td>' +
-										    '<td class="product-image">' +
-										        '<a href="javascript:;">' +
-										            '<img src="' + v.book.picUrl + '" alt="" style="height: 160px;">' +
+										'<div class="cart-product">' +
+											'<div class="cart-product-image">' +
+										        '<a href="single-product.html?id=' + v.bookIdStr + '">' +
+										            '<img src="' + v.book.picUrl + '" alt="" style="max-height: 100px;">' +
 										        '</a>' +
-										    '</td>' +
-										    '<td class="t-product-name">' +
-										        '<h3>' +
-										            '<a href="javascript:;">' + v.book.name + '</a>' +
-										        '</h3>' +
-										    '</td>' +
-										    '<td class="product-unit-price">' +
-										        '<p>￥&nbsp;<span class="td-sellingPrice">' + v.book.sellingPrice + '</span></p>' +
-										    '</td>' +
-										    '<td class="product-quantity product-cart-details">' +
-												'<input type="number" class="td-quantity" value="' + v.quantity + '">' +
-											'</td>' +
-										    '<td class="product-quantity">' +
-												'<p>￥&nbsp;<span class="td-amount">' + v.amount + '</span></p>' +
-											'</td>' +
-											'<td class="product-remove">' +
-											    '<a href="javascript:;" onClick="removeProduct(\'' + v.bookIdStr + '\')">' +
-											        '<i class="flaticon-delete"></i>' +
-											    '</a>' +
-											'</td>' +
-										'</tr>';
+										    '</div>' +
+										    '<div class="cart-product-info">' +
+										        '<p>' +
+										            '<span>' + v.quantity + '</span>' +
+										            'x' +
+										            '<a href="single-product.html?id=' + v.bookIdStr + '">' + v.book.name + '</a>' +
+										        '</p>' +
+										        '<span class="cart-price">￥ ' + v.amount + '</span>' +
+										    '</div>' +
+										    '<div class="cart-product-remove" onClick="removeProduct(\'' + v.bookIdStr +'\')">' +
+										        '<i class="fa fa-times"></i>' +
+										    '</div>' +
+										'</div>';
 								})
-								$('#checklist').html(html)
-								$('#product-total').html(shopping_cart_num)
-								$('#product-total-amount').html(total_amount / 100)
-								$('#checklist').find(":checkbox").bind('click', function() {
-									if ($(this).is(':checked')) {
-										let nocheckedList = $("#checklist").find(":checkbox:not(:checked)").length;
-										if (nocheckedList === 0) {
-											$("#selectAll:first").prop('checked', true)
-										}
-									} else {
-										$('#selectAll:first').prop('checked', false)
-									}
-									quantityChange()
-								})
-								$('.td-quantity').bind('change', function() {
-									quantityChange()
-								})
+								$('#shopping-cart-num').append('<span>' + shopping_cart_num + '</span>')
+								$('.shopping-cart-book-area').html(html)
+								$('.total-amount').html('￥&nbsp;' + (total_amount / 10000))
 							} else {
 								layer.msg(resp.msg)
 							}
@@ -615,21 +584,38 @@
 			}
 			
 			/**
+			 * 删除订单和tr，不刷新界面
+			 */
+			function removeTrAndProduct(_this) {
+				layer.confirm('您确定要删除该订单吗？', {
+					btn: ['确定', '取消'],
+					yes: function(index) {
+						layer.close(index)
+						var tr = $(_this).parent().parent()
+						var orderNo = $(tr).find('.orderNo').val()
+						$(tr).remove()
+						removeProduct(orderNo)
+					}
+				})
+			}
+			
+			/**
 			 * 移除购物车商品
 			 */
-			function removeProduct(bookId) {
-				var userToken = window.localStorage.getItem('userToken')
+			function removeProduct(orderNo) {
 				$.ajax({
-					url: url.cart.deleteByBookId + "/" + bookId,
+					url: url.order.del,
 					headers: {
 						token: userToken
 					},
+					data: JSON.stringify({
+						orderNo: orderNo
+					}),
 					type: 'DELETE',
 					dataType: 'json',
 					contentType: 'application/json',
 					success: function(resp) {
 						if (resp.code != null && resp.code == 200) {
-							checkCart()
 						} else {
 							layer.msg(resp.msg)
 						}

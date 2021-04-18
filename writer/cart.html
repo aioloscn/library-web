@@ -669,7 +669,7 @@
 			 */
 			function removeSelectedProduct() {
 				layer.confirm('确定移除选中的商品吗？', {
-					btn: ['是', '否'],
+					btn: ['确定', '取消'],
 					yes: function(index) {
 						layer.close(index)
 						$('#checklist').find(':checkbox:checked').each(function() {
