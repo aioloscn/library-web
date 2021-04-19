@@ -476,8 +476,8 @@
 								html +=
 									'<tr>' +
 										'<td class="product-order-id">' +
-											'<span>' + v.orderNoStr + '</span>' +
-											'<input type="hidden" class="orderNo" value="' + v.orderNoStr + '" />' +
+											'<span>' + v.orderNo + '</span>' +
+											'<input type="hidden" class="orderNo" value="' + v.orderNo + '" />' +
 										'</td>' +
 									    '<td class="product-image">' +
 									        '<a href="javascript:;">' +
@@ -554,7 +554,7 @@
 									html += 
 										'<div class="cart-product">' +
 											'<div class="cart-product-image">' +
-										        '<a href="single-product.html?id=' + v.bookIdStr + '">' +
+										        '<a href="single-product.html?id=' + v.bookId + '">' +
 										            '<img src="' + v.book.picUrl + '" alt="" style="max-height: 100px;">' +
 										        '</a>' +
 										    '</div>' +
@@ -562,11 +562,11 @@
 										        '<p>' +
 										            '<span>' + v.quantity + '</span>' +
 										            'x' +
-										            '<a href="single-product.html?id=' + v.bookIdStr + '">' + v.book.name + '</a>' +
+										            '<a href="single-product.html?id=' + v.bookId + '">' + v.book.name + '</a>' +
 										        '</p>' +
 										        '<span class="cart-price">￥ ' + v.amount + '</span>' +
 										    '</div>' +
-										    '<div class="cart-product-remove" onClick="removeProduct(\'' + v.bookIdStr +'\')">' +
+										    '<div class="cart-product-remove" onClick="removeProduct(\'' + v.bookId +'\')">' +
 										        '<i class="fa fa-times"></i>' +
 										    '</div>' +
 										'</div>';
