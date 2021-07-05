@@ -558,6 +558,8 @@
 					error: function(e) {
 						if (e.responseJSON != null) {
 							layer.msg(e.responseJSON.msg)
+						} else if (e.responseText != null) {
+							layer.msg(e.responseText)
 						} else {
 							layer.msg('服务器未启动')
 						}
@@ -570,8 +572,11 @@
 			 */
 			function checkCart() {
 				if (userToken == null) {
-					layer.msg('请先登录')
-					return
+					layer.msg('会话失效，请重新登录', function() {
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}, {time: 2000})
+					return false
 				}
 				var html = ''
 				if (userToken != null) {
@@ -583,7 +588,7 @@
 						type: 'GET',
 						dataType: 'json',
 						success: function(resp) {
-							if (resp.code != null && resp.code == 200 && resp.data != null) {
+							if (resp.code == 200 && resp.data != null) {
 								var shopping_cart_num = 0
 								var total_amount = 0
 								$.each(resp.data, function(i, v) {
@@ -639,6 +644,12 @@
 									quantityChange()
 									updateCart(this)
 								})
+							} else if (resp.code == 20000 || resp.code == 20012) {
+								layer.msg(resp.msg, function() {
+									window.localStorage.removeItem('userToken')
+									window.location.href = 'login.html'
+								}, {time: 2000})
+								return false
 							} else {
 								layer.msg(resp.msg)
 							}
@@ -646,6 +657,8 @@
 						error: function(e) {
 							if (e.responseJSON != null) {
 								layer.msg(e.responseJSON.msg)
+							} else if (e.responseText != null) {
+								layer.msg(e.responseText)
 							} else {
 								layer.msg('服务器未启动')
 							}
@@ -704,6 +717,8 @@
 					error: function(e) {
 						if (e.responseJSON != null) {
 							layer.msg(e.responseJSON.msg)
+						} else if (e.responseText != null) {
+							layer.msg(e.responseText)
 						} else {
 							layer.msg('服务器未启动')
 						}
@@ -716,8 +731,11 @@
 			 */
 			function checkout() {
 				if (userToken == null) {
-					layer.msg('请先登录')
-					return
+					layer.msg('会话失效，请重新登录', function() {
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}, {time: 2000})
+					return false
 				}
 				var bookIds = new Array()
 				$('#checklist').find('input[type="checkbox"]:checked').each(function() {

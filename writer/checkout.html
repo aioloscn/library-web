@@ -534,8 +534,11 @@
 			
 			function initCheckout() {
 				if (userToken == null) {
-					layer.msg('请先登录')
-					return
+					layer.msg('会话失效，请重新登录', function() {
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}, {time: 2000})
+					return false
 				}
 				var bookIds = window.localStorage.getItem('checkout:' + userToken)
 				$.ajax({
@@ -589,8 +592,11 @@
 			 */
 			function placeOrder() {
 				if (userToken == null) {
-					layer.msg('请先登录')
-					return
+					layer.msg('会话失效，请重新登录', function() {
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}, {time: 2000})
+					return false
 				}
 				if (tableData == null || tableData.length == 0) return
 				

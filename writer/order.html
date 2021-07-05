@@ -461,8 +461,11 @@
 			 */
 			function initOrder() {
 				if (userToken == null) {
-					layer.msg('请先登录')
-					return
+					layer.msg('会话失效，请重新登录', function() {
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}, {time: 2000})
+					return false
 				}
 				$.ajax({
 					url: url.order.getByUser,
@@ -507,14 +510,23 @@
 										'<td class="product-remove">' +
 										    '<a href="javascript:;" onClick="removeTrAndProduct(this)">' +
 										        '<i class="flaticon-delete"></i>' +
-										    '</a>' +
-											'<div class="availability">' +
-												'<span><a href="javascript:;" onClick="receipt(this)">确认收货</span>' +
-											'</div>' +
-										'</td>' +
+										    '</a>';
+									if (v.status === 2) {
+										html += 
+										'<div class="availability">' +
+											'<span><a href="javascript:;" onClick="receipt(this)">确认收货</span>' +
+										'</div>';
+									}
+									html += '</td>' +
 									'</tr>';
 								$('#orderlist').html(html)
 							})
+						} else if (resp.code == 20000 || resp.code == 20012) {
+							layer.msg(resp.msg, function() {
+								window.localStorage.removeItem('userToken')
+								window.location.href = 'login.html'
+							}, {time: 2000})
+							return false
 						} else {
 							layer.msg(resp.msg)
 						}

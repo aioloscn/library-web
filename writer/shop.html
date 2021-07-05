@@ -751,7 +751,11 @@
 				 var userToken = window.localStorage.getItem('userToken')
 				 var quantity = $('.cart-plus-minus-box').val()
 				 if (userToken == null) {
-					 layer.msg('请先登录')
+					 layer.msg('会话失效，请重新登录', function() {
+					 	window.localStorage.removeItem('userToken')
+					 	window.location.href = 'login.html'
+					 }, {time: 2000})
+					 return false
 				 } else if (quantity < 1) {
 					 layer.msg('商品数量不能小于1')
 				 } else {
@@ -762,7 +766,11 @@
 			function addOneToCart(bookId) {
 				var userToken = window.localStorage.getItem('userToken')
 				if (userToken == null) {
-					layer.msg('请先登录')
+					layer.msg('会话失效，请重新登录', function() {
+						window.localStorage.removeItem('userToken')
+						window.location.href = 'login.html'
+					}, {time: 2000})
+					return false
 				} else {
 					addCartAjax(bookId, 1, userToken)
 				}

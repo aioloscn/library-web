@@ -4,7 +4,7 @@ var url = {
 	user: {
 		getSMSCode: baseUrl + "/library-user/user/getSMSCode",
 		login: baseUrl + "/library-user/user/login",
-		getByToken: baseUrl + "/library-user/user",
+		getByToken: baseUrl + "/library-user/user/get",
 		logout: baseUrl + "/library-user/user/logout"
 	},
 	book: {
@@ -22,6 +22,7 @@ var url = {
 	},
 	order: {
 		add: baseUrl + "/library-order/order",
+		get: baseUrl + "/library-order/order/get",
 		getByUser: baseUrl + "/library-order/order/getByUser",
 		del: baseUrl + "/library-order/order",
 		receipt: baseUrl + "/library-order/order/receipt"
